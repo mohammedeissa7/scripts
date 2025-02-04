@@ -11,4 +11,17 @@
 
 # script For Handle logging
 
-## what loggingscript DO
+## what loggingscript Do
+1. make log directory
+2. put logs in a file for a specific number of days
+3. Compresses logs into ```.tar.gz``` format and stores them in an archive directory after some days
+4. Deletes old logs and backup archives
+
+# script for start NGINX on my machine
+
+## what learnNGINX Do
+1. Install Nginx
+2. Configure Website Directory
+3. Create a Test Web Page
+4. Custom Nginx Configuration
+5. Validate & Restart Nginx
