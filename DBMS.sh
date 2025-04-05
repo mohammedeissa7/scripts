@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# GlobaL Values
-DB_DIR="database"
+
+DB_DIR="./database"
 CURRENT_DB=""
 
 
@@ -35,15 +35,16 @@ function create_database {
     echo ""
     read -p "Enter Database Name : " dbname
     
-    # This checks if $dbname is not a valid name
-    if [[ ! "$dbname"=~ ^[a-zA-Z][a-zA-Z0-9_]*$  ]]; then
+
+    if [[ ! "$dbname" =~ ^[a-zA-Z][a-zA-Z0-9_]*$  ]]; then
         echo "Invalid Database Name"
         sleep 1
         main_menu
         return
     fi 
-    # This checks if $dbname Exist or NOT
-    if [-d "$DB_DIR/$dbname"] ; then
+
+
+    if [ -d "$DB_DIR/$dbname" ] ; then
         echo " Database '$dbname' is already exist " 
     else
         mkdir -p "$DB_DIR/$dbname"
@@ -59,18 +60,18 @@ function list_databases {
     echo ""
     echo "List all Databases  :"
     echo ""
-    if [! -d  "$DB_DIR"] || [-z "$(ls -A "$DB_DIR")"]; then
+    if [ ! -d  "$DB_DIR" ] || [ -z "$(ls -a "$DB_DIR")" ]; then
         echo "No Database Exist"
     else 
         echo "$(ls -A "$DB_DIR")"
     fi
 
-    sleep 1
+    sleep 5
     
     main_menu
 }
 
-function connect_to_database {
+function connect_database {
     clear
     echo ""
     echo "Connecet To Database"
@@ -85,15 +86,15 @@ function connect_to_database {
     echo "Available databases:"
     ls "$DB_DIR"
     echo ""
-    read -p "Enter The Database You Want to Connect" dbname
+    read -p "Enter The Database You Want to Connect : " dbname
 
-    if [-d "$DB_DIR/$dbname"] ; then
+    if [ -d "$DB_DIR/$dbname" ] ; then
         CURRENT_DB="$dbname"
         sleep 1
         table_menu
     else
         echo "Database '$dbname' is Not Exist"
-        sleep 1 
+        sleep 5 
         main_menu
     fi 
 
@@ -108,6 +109,7 @@ function Drop_Database {
     echo ""
     if [ ! -d "$DB_DIR" ] || [ -z "$(ls -A $DB_DIR)" ]; then
         echo "No databases exist."
+        sleep 2
         main_menu
         return
     fi
@@ -117,15 +119,16 @@ function Drop_Database {
     echo ""
     read -p "Enter The Database You Want to Connect" dbname
 
-    if [-d "$DB_DIR/$dbname"]; then
+    if [ -d "$DB_DIR/$dbname" ]; then
         rm -r "$DB_DIR/$dbname"
         echo "Database Dropped Succesfully"
-        if ["$CURRENT_DB" == "$dbname" ]; then
+        if [ "$CURRENT_DB" == "$dbname" ]; then
             CURRENT_DB=""
         fi
     else
         echo "Database '$dbname' does not exist."
     fi
+    sleep 2
     main_menu
 
 }
@@ -162,15 +165,17 @@ function table_menu {
 }
 
 
-function Create_Table{
+function Create_Table {
+    
     clear
     echo ""
     echo "Create Table"
     echo ""
     read -p "Please Enter Table Name" tablename
 
-    if [[! "$tablename"=~ ^[a-zA-Z][a-zA-Z0-9_]*$  ]]; then
+    if [[ ! "$tablename" =~ ^[a-zA-Z][a-zA-Z0-9_]*$  ]]; then
         echo "Invalid Table Name"
+        sleep 2
         table_menu
         return
     fi
@@ -178,8 +183,9 @@ function Create_Table{
     local tablepath="$DB_DIR/$CURRENT_DB/tablename"
     local metapath="$DB_DIR/$CURRENT_DB/.$tablename.meta"
 
-    if [-f "$tablename"]; then 
+    if [ -f "$tablename" ]; then 
         echo "The '$tablename' done succesfully"
+        sleep 2
         table_menu
         return
     fi
@@ -211,7 +217,7 @@ function Create_Table{
             continue
         fi
 
-        if [[! "$coltype"=~ ^(int|str|bool)$ ]]; then
+        if [[ ! "$coltype" =~ ^(int|str|bool)$ ]]; then
             echo "Invalid datatype. Must be one of: int, str, bool"
             continue
         fi
@@ -235,15 +241,16 @@ function Create_Table{
         datatype+=("$coltype")
         echo "Column '$colname' added."
     done
-    if [${colmns[@]} -eq 0 ]; then
+    if [ ${colmns[@]} -eq 0 ]; then
         echo ""
         rm "$tablepath"
         rm "$metapath"
+        sleep 2
         table_menu
         return
     fi        
 
-    if ["$has_primary" = false]; then
+    if [ "$has_primary" = false ]; then
         primary_key="${columns[0]}"
         echo "No primary key specified. Using first column '$primary_key' as primary key."
     
@@ -255,11 +262,12 @@ function Create_Table{
     
     echo "Table '$tablename' created successfully with columns: '${columns[*]}' "
     echo "Primary key: '$primary_key' "
-
+    sleep 2
     table_menu
 
 }     
-function List_Tables{
+
+function List_Tables {
     clear
     echo ""
     echo "List Of Tables in '$CURRENT_DB' : "
@@ -267,7 +275,7 @@ function List_Tables{
 
     local tables=$(ls "$DB_DIR/$CURRENT_DB" | grep -v '^\.')
 
-    if [-z "$tables"]; then
+    if [ -z "$tables" ]; then
         echo "There is no database"
     else
         echo "Tables : "
@@ -280,10 +288,12 @@ function List_Tables{
     fi
 
     read -p "press any key to go to table menu"
+    sleep 2
     table_menu
 
 }    
-function Drop_Table{
+function Drop_Table {
+
     clear
     echo ""
     echo "Drop Table"
@@ -292,7 +302,7 @@ function Drop_Table{
     
     if [ -z "$tables" ]; then
         echo "No tables exist in this database."
-
+        sleep 2
         table_menu
         return
     fi
@@ -317,10 +327,11 @@ function Drop_Table{
     else
         echo "Table '$tablename' does not exist."
     fi
-
+    sleep 2
     table_menu
 }   
-function Insert_into_Table{
+
+function Insert_into_Table {
     clear
     echo ""
     echo "Insert into Table"
@@ -420,10 +431,10 @@ function Insert_into_Table{
     echo "${values[*]}" | tr ' ' '|' >> "$tablepath"
     
     echo "Record inserted successfully."
-
+    sleep 2
     table_menu
 }    
-function Select_From_Table{
+function Select_From_Table {
     clear
     echo ""
     echo "Select from Table"
@@ -484,9 +495,10 @@ function Select_From_Table{
     done < "$tablepath"
     
     read -p "Press any key to return to table menu..."
+    sleep 2
     table_menu
 }    
-function Delete_From_Table{
+function Delete_From_Table {
     clear
     echo ""
     echo "Delete from Table"
@@ -563,7 +575,7 @@ function Delete_From_Table{
     sleep 2
     table_menu
 }    
-function Update_Table{
+function Update_Table {
     clear
     echo ""
     echo "Update Table"
